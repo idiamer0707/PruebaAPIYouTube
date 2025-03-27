@@ -78,30 +78,42 @@ document.getElementById('fetchSubscribers').addEventListener('click', async () =
     }
   });
 
+
 const clientId = '126569545869-g7jdjkh3vmmc4g0acbv0862hat3i5l4m.apps.googleusercontent.com';
 const clientSecret = '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';
-const redirectUri = 'https://idiamer0707.github.io/PruebaAPIYouTube/';
+const redirectUri = 'https://127.0.0.1:30000';
 const scope = 'https://www.googleapis.com/auth/youtube.readonly';
 
 let accessToken = '';
 
 // Iniciar autenticación OAuth 2.0
 document.getElementById('fetchSubscribers2').addEventListener('click', async () => {
-    const channelName = document.getElementById('channelName2').value;
+  const channelName = document.getElementById('channelName2').value;
 
-    if (!channelName) {
-        document.getElementById('output2').innerText = 'Por favor, ingresa el nombre de un canal.';
-        return;
-    }
+  if (!channelName) {
+      document.getElementById('output2').innerText = 'Por favor, ingresa el nombre de un canal.';
+      return;
+  }
 
-    try {
-        // Redirigir al usuario para autenticar
-        const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
-        window.location.href = authUrl;
-    } catch (error) {
-        console.error('Error de autenticación:', error);
-        document.getElementById('output2').innerText = 'Ocurrió un error al iniciar la autenticación.';
-    }
+  let isAuthenticated = accessToken ? true : false; 
+
+  try {
+      do {
+          if (!isAuthenticated) {
+              // Redirigir al usuario para autenticar
+              const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
+              window.location.href = authUrl;
+              break; // Salir del bucle después de redirigir
+          } else {
+              // Llamar la función para obtener los datos del canal si está autenticado
+              await fetchChannelData(channelName);
+              isAuthenticated = true; // Confirmar autenticación exitosa
+          }
+      } while (!isAuthenticated);
+  } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('output2').innerText = 'Ocurrió un error al procesar la solicitud.';
+  }
 });
 
 // Capturar el token de acceso después de la redirección
@@ -145,12 +157,3 @@ async function fetchChannelData(channelName) {
     }
 }
 
-// Vincular el evento después de la autenticación
-document.getElementById('fetchSubscribers2').addEventListener('click', () => {
-    const channelName = document.getElementById('channelName2').value;
-    if (accessToken) {
-        fetchChannelData(channelName);
-    } else {
-        document.getElementById('output2').innerText = 'Por favor, autentícate primero.';
-    }
-});
