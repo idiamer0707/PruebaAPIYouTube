@@ -156,4 +156,3 @@ async function fetchChannelData(channelName) {
         document.getElementById('output2').innerText = 'Ocurrió un error al obtener los datos.';
     }
 }
-
