@@ -171,6 +171,15 @@ async function fetchChannelData(channelName) {
           const privateVideosResponse = await fetch(privateVideosUrl);
           const privateVideosData = await privateVideosResponse.json();
 
+        
+           if (privateVideosData.items && privateVideosData.items.length > 0) {
+                privateVideosData.items.forEach(video => {
+                console.log(`Título: ${video.snippet.title}, Likes: ${video.statistics.likeCount}, Comentarios: ${video.statistics.commentCount}`);
+                });
+            } else {
+            console.log('No se encontraron videos privados.');
+            }
+          
           if (privateVideosData.items) {
               privateVideosData.items.forEach(video => videos.push(video.id));
           }
