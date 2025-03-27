@@ -166,8 +166,8 @@ async function fetchChannelData(channelName) {
               nextPageToken = videosData.nextPageToken;
           } while (nextPageToken);
 
-          // Obtener videos privados o no listados
-          const privateVideosUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&myRating=like&access_token=${accessToken}`;
+          // Obtener videos privados 
+          const privateVideosUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&access_token=${accessToken}`;
           const privateVideosResponse = await fetch(privateVideosUrl);
           const privateVideosData = await privateVideosResponse.json();
 
