@@ -81,7 +81,7 @@ document.getElementById('fetchSubscribers').addEventListener('click', async () =
 
 const clientId = '126569545869-g7jdjkh3vmmc4g0acbv0862hat3i5l4m.apps.googleusercontent.com';
 const clientSecret = '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';
-const redirectUri = 'https://127.0.0.1:30000';
+const redirectUri = 'https://idiamer0707.github.io/PruebaAPIYouTube/';
 const scope = 'https://www.googleapis.com/auth/youtube.readonly';
 
 let accessToken = '';
