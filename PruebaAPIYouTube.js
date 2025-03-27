@@ -126,7 +126,7 @@ window.addEventListener('load', async () => {
 // Obtener datos del canal usando OAuth
 async function fetchChannelData(channelName) {
   try {
-      // Buscar el canal
+      // Buscar el canal por nombre
       const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(channelName)}&access_token=${accessToken}`;
       const searchResponse = await fetch(searchUrl);
       const searchData = await searchResponse.json();
@@ -150,34 +150,32 @@ async function fetchChannelData(channelName) {
           document.getElementById('subs2').innerText = `Número de suscriptores: ${subscribers}`;
           document.getElementById('views2').innerText = `Número de visualizaciones: ${views}`;
 
-          // Listar videos públicos y privados
+          // Obtener videos públicos
           let videos = [];
           let nextPageToken = '';
-
           do {
               const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&maxResults=50&type=video&pageToken=${nextPageToken}&access_token=${accessToken}`;
               const videosResponse = await fetch(videosUrl);
               const videosData = await videosResponse.json();
 
-              // Guardar IDs de videos
-              const videoIds = videosData.items.map(video => video.id.videoId);
-              videos = videos.concat(videoIds);
+              if (videosData.items) {
+                  const videoIds = videosData.items.map(video => video.id.videoId);
+                  videos = videos.concat(videoIds);
+              }
 
-              // Actualizar el token de la siguiente página
               nextPageToken = videosData.nextPageToken;
           } while (nextPageToken);
 
-          // Añadir videos ocultos (privados y no listados)
+          // Obtener videos privados o no listados
           const privateVideosUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&myRating=like&access_token=${accessToken}`;
           const privateVideosResponse = await fetch(privateVideosUrl);
           const privateVideosData = await privateVideosResponse.json();
 
-          // Procesar videos privados
-          privateVideosData.items.forEach(video => {
-              videos.push(video.id);
-          });
+          if (privateVideosData.items) {
+              privateVideosData.items.forEach(video => videos.push(video.id));
+          }
 
-          // Procesar estadísticas de todos los videos obtenidos
+          // Procesar estadísticas de todos los videos
           let totalLikes = 0;
           let totalComments = 0;
 
@@ -187,10 +185,12 @@ async function fetchChannelData(channelName) {
               const statsResponse = await fetch(videosStatsUrl);
               const statsData = await statsResponse.json();
 
-              statsData.items.forEach(video => {
-                  totalLikes += parseInt(video.statistics.likeCount || 0);
-                  totalComments += parseInt(video.statistics.commentCount || 0);
-              });
+              if (statsData.items) {
+                  statsData.items.forEach(video => {
+                      totalLikes += parseInt(video.statistics.likeCount || 0);
+                      totalComments += parseInt(video.statistics.commentCount || 0);
+                  });
+              }
           }
 
           // Mostrar resultados finales
