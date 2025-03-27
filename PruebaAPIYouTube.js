@@ -1,3 +1,4 @@
+
 const apiKey = 'AIzaSyCfLgVaFo5pj0mkgP1m4aBmDZEYrzzX_GU';
 
 
@@ -91,39 +92,36 @@ document.getElementById('fetchSubscribers2').addEventListener('click', async () 
   const channelName = document.getElementById('channelName2').value;
 
   if (!channelName) {
-      document.getElementById('output2').innerText = 'Por favor, ingresa el nombre de un canal.';
-      return;
+    document.getElementById('output2').innerText = 'Por favor, ingresa el nombre de un canal.';
+    return;
   }
 
-  let isAuthenticated = accessToken ? true : false; 
-
-  try {
-      do {
-          if (!isAuthenticated) {
-              // Redirigir al usuario para autenticar
-              const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
-              window.location.href = authUrl;
-              break; // Salir del bucle después de redirigir
-          } else {
-              // Llamar la función para obtener los datos del canal si está autenticado
-              await fetchChannelData(channelName);
-              isAuthenticated = true; // Confirmar autenticación exitosa
-          }
-      } while (!isAuthenticated);
-  } catch (error) {
-      console.error('Error:', error);
-      document.getElementById('output2').innerText = 'Ocurrió un error al procesar la solicitud.';
+  if (!accessToken) {
+    // Redirigir al usuario para autenticar si no tiene el token
+    const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
+    window.location.href = authUrl;
+  } else {
+    fetchChannelData(channelName);
   }
 });
 
-// Capturar el token de acceso después de la redirección
-window.addEventListener('load', () => {
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
-    accessToken = hashParams.get('access_token');
+window.addEventListener('load', async () => {
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  accessToken = hashParams.get('access_token');
 
-    if (accessToken) {
-        document.getElementById('output2').innerText = 'Autenticación completada con éxito.';
-    }
+  if (accessToken) {
+      document.getElementById('output2').innerText = 'Autenticación completada con éxito.';
+      
+      // Obtener el nombre del canal ingresado por el usuario
+      const channelName = document.getElementById('channelName2').value;
+
+      if (channelName) {
+          // Llamar a la función para mostrar datos automáticamente
+          await fetchChannelData(channelName);
+      } else {
+          document.getElementById('output2').innerText = 'Por favor, ingresa el nombre de un canal para continuar.';
+      }
+  }
 });
 
 // Obtener datos del canal usando OAuth
