@@ -131,9 +131,46 @@ document.getElementById('fetchSubscribers').addEventListener('click', async () =
       document.getElementById('subs2').innerText = `Número de suscriptores: ${subscribers}`;
       document.getElementById('views2').innerText = `Número de visualizaciones: ${views}`;
       document.getElementById('output2').innerText = `Canal autenticado: ${channelName}`;
+
+      // Obtener todos los videos públicos del canal
+    let videos = [];
+    let nextPageToken = '';
+    do {
+      const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&maxResults=50&type=video&pageToken=${nextPageToken}&access_token=${accessToken}`;
+      const videosResponse = await fetch(videosUrl);
+      const videosData = await videosResponse.json();
+
+      if (videosData.items) {
+        const videoIds = videosData.items.map(video => video.id.videoId);
+        videos = videos.concat(videoIds);
+      }
+
+      nextPageToken = videosData.nextPageToken;
+    } while (nextPageToken);
+
+    // Obtener estadísticas de los videos públicos y privados
+    let totalLikes = 0;
+    let totalComments = 0;
+
+    for (let i = 0; i < videos.length; i += 50) {
+      const chunk = videos.slice(i, i + 50).join(',');
+      const videosStatsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${chunk}&access_token=${accessToken}`;
+      const statsResponse = await fetch(videosStatsUrl);
+      const statsData = await statsResponse.json();
+
+      if (statsData.items) {
+        statsData.items.forEach(video => {
+          totalLikes += parseInt(video.statistics.likeCount || 0);
+          totalComments += parseInt(video.statistics.commentCount || 0);
+        });
+      }
+    }
+
+    // Mostrar el total de likes y comentarios
+    document.getElementById('likes2').innerText = `Número total de likes: ${totalLikes}`;
+    document.getElementById('comments2').innerText = `Número total de comentarios: ${totalComments}`;
     } catch (error) {
       console.error('Error:', error);
       document.getElementById('output2').innerText = 'Ocurrió un error al obtener los datos del canal.';
     }
   }
-  
