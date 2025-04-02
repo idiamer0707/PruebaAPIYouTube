@@ -127,6 +127,7 @@ document.getElementById('fetchSubscribers').addEventListener('click', async () =
       const channelName = channel.snippet.title;
       const subscribers = channel.statistics.subscriberCount;
       const views = channel.statistics.viewCount;
+      const channelId = channel.id;
   
       document.getElementById('subs2').innerText = `Número de suscriptores: ${subscribers}`;
       document.getElementById('views2').innerText = `Número de visualizaciones: ${views}`;
@@ -174,3 +175,4 @@ document.getElementById('fetchSubscribers').addEventListener('click', async () =
       document.getElementById('output2').innerText = 'Ocurrió un error al obtener los datos del canal.';
     }
   }
+  
